@@ -941,6 +941,7 @@ void BitcoinGUI::lockWalletToggle()
     }
 else
         walletModel->setWalletLocked(true);
+}
 
 void BitcoinGUI::showNormalIfMinimized(bool fToggleHidden)
 {
