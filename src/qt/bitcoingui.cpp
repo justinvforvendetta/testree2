@@ -886,9 +886,11 @@ void BitcoinGUI::setEncryptionStatus(int status)
         labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>locked</b>"));
         encryptWalletAction->setChecked(true);
         changePassphraseAction->setEnabled(true);
-        unlockWalletAction->setVisible(true);
-        lockWalletAction->setVisible(false);
+        lockWalletToggleAction->setVisible(true);
         encryptWalletAction->setEnabled(false); // TODO: decrypt currently not supported
+        lockWalletToggleAction->setIcon(QIcon(":/icons/lock_open"));
+        lockWalletToggleAction->setText(tr("&Unlock Wallet..."));
+        lockWalletToggleAction->setToolTip(tr("Unlock wallet"));
         break;
     }
 }
