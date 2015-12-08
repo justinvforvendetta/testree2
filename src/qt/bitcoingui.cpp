@@ -864,20 +864,21 @@ void BitcoinGUI::setEncryptionStatus(int status)
     case WalletModel::Unencrypted:
         labelEncryptionIcon->hide();
         encryptWalletAction->setChecked(false);
-        changePassphraseAction->setEnabled(false);
-        unlockWalletAction->setVisible(false);
-        lockWalletAction->setVisible(false);
         encryptWalletAction->setEnabled(true);
+        changePassphraseAction->setEnabled(false);
+        lockWalletToggleAction->setVisible(false);
         break;
     case WalletModel::Unlocked:
         labelEncryptionIcon->show();
         labelEncryptionIcon->setPixmap(QIcon(":/icons/lock_open").pixmap(28,54));
         labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked</b>"));
         encryptWalletAction->setChecked(true);
-        changePassphraseAction->setEnabled(true);
-        unlockWalletAction->setVisible(false);
-        lockWalletAction->setVisible(true);
         encryptWalletAction->setEnabled(false); // TODO: decrypt currently not supported
+        changePassphraseAction->setEnabled(true);
+        lockWalletToggleAction->setVisible(true);
+        lockWalletToggleAction->setIcon(QIcon(":/icons/lock_closed"));
+        lockWalletToggleAction->setText(tr("&Lock Wallet"));
+        lockWalletToggleAction->setToolTip(tr("Lock wallet"));
         break;
     case WalletModel::Locked:
         labelEncryptionIcon->show();
