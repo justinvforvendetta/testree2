@@ -371,12 +371,12 @@ void BitcoinGUI::createToolBars()
     toolbar->addAction(addressBookAction);
     toolbar->addAction(statisticsAction);
     toolbar->addAction(blockAction);
+    toolbar->addAction(lockWalletToggleAction);
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     toolbar->addWidget(spacer);
     spacer->setObjectName("spacer");
-	toolbar->addAction(unlockWalletAction);
-	toolbar->addAction(lockWalletAction);
+    
 
 
 }
