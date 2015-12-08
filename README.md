@@ -1,1 +1,1 @@
-Pseudocoin
+Reecoin Source Code
