@@ -139,12 +139,14 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     // Status bar notification icons
 
     labelEncryptionIcon = new QLabel();
+    labelMintingIcon = new QLabel();
     labelConnectionsIcon = new QLabel();
+    labelMiningIcon = new QLabel();
     labelBlocksIcon = new QLabel();
     //actionConvertIcon = new QAction(QIcon(":/icons/statistics"), tr(""), this);
 
 
-	// Progress bar and label for blocks download
+    // Progress bar and label for blocks download
     progressBarLabel = new QLabel(overviewPage);
     progressBarLabel->move(398, 518);
     progressBarLabel->setVisible(false);
