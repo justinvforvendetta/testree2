@@ -3,27 +3,19 @@
 
 #include <QMainWindow>
 #include <QSystemTrayIcon>
-#include "blockbrowser.h"
-#include "util.h" // for uint64
-#include "init.h"
-#include "statisticspage.h"
-#include "overviewpage.h"
-#include "graphpage.h"
 
 class TransactionTableModel;
 class ClientModel;
 class WalletModel;
 class TransactionView;
 class OverviewPage;
+class BlockBrowser;
+class ChatWindow;
 class AddressBookPage;
 class SendCoinsDialog;
 class SignVerifyMessageDialog;
 class Notificator;
 class RPCConsole;
-class StatisticsPage;
-//class OverviewPage;
-class GraphPage;
-
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -66,14 +58,12 @@ protected:
 private:
     ClientModel *clientModel;
     WalletModel *walletModel;
-    BlockBrowser *blockBrowser;
+
     QStackedWidget *centralWidget;
-    StatisticsPage *statisticsPage;
+
     OverviewPage *overviewPage;
-
-    // Graph
-    GraphPage *graphpage;
-
+	BlockBrowser *blockBrowser;
+	ChatWindow *chatWindow;
     QWidget *transactionsPage;
     AddressBookPage *addressBookPage;
     AddressBookPage *receiveCoinsPage;
@@ -81,20 +71,16 @@ private:
     SignVerifyMessageDialog *signVerifyMessageDialog;
 
     QLabel *labelEncryptionIcon;
-    QLabel *labelMintingIcon;
     QLabel *labelConnectionsIcon;
     QLabel *labelBlocksIcon;
     QLabel *progressBarLabel;
-	QLabel *labelMiningIcon;
     QProgressBar *progressBar;
 
     QMenuBar *appMenuBar;
     QAction *overviewAction;
-    QAction *graphpageaction;
-
+	QAction *blockAction;
+	QAction *chatAction;
     QAction *historyAction;
-    QAction *statisticsAction;
-
     QAction *quitAction;
     QAction *sendCoinsAction;
     QAction *addressBookAction;
@@ -108,23 +94,17 @@ private:
     QAction *encryptWalletAction;
     QAction *backupWalletAction;
     QAction *changePassphraseAction;
-    QAction *lockWalletToggleAction;
+    QAction *unlockWalletAction;
+    QAction *lockWalletAction;
     QAction *aboutQtAction;
     QAction *openRPCConsoleAction;
-    QAction *blockAction;
-    QAction *miningOffAction;
-    QAction *miningOneAction;
+
     QSystemTrayIcon *trayIcon;
     Notificator *notificator;
     TransactionView *transactionView;
     RPCConsole *rpcConsole;
-	
 
     QMovie *syncIconMovie;
-
-    uint64 nMinMax;
-    uint64 nWeight;
-    uint64 nNetworkWeight;
 
     /** Create the main UI actions. */
     void createActions();
@@ -162,8 +142,10 @@ public slots:
 private slots:
     /** Switch to overview (home) page */
     void gotoOverviewPage();
-    void gotoGraphpage();
-
+	/** Switch to block explorer*/
+    void gotoBlockBrowser();
+	/** Switch to chat page */
+	void gotoChatPage();
     /** Switch to history (transactions) page */
     void gotoHistoryPage();
     /** Switch to address book page */
@@ -173,11 +155,6 @@ private slots:
     /** Switch to send coins page */
     void gotoSendCoinsPage();
 
-   void gotoStatisticsPage();
-
-
-        void gotoBlockBrowser();
-
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
     /** Show Sign/Verify Message dialog and switch to verify message tab */
@@ -185,6 +162,7 @@ private slots:
 
     /** Show configuration dialog */
     void optionsClicked();
+ 
     /** Show about dialog */
     void aboutClicked();
 #ifndef Q_OS_MAC
@@ -202,22 +180,16 @@ private slots:
     void backupWallet();
     /** Change encrypted wallet passphrase */
     void changePassphrase();
-    /** Toggle unlocking wallet temporarily */
-    void lockWalletToggle();
+    /** Ask for passphrase to unlock wallet temporarily */
+    void unlockWallet();
+
+    void lockWallet();
 
     /** Show window if hidden, unminimize when minimized, rise when obscured or show if hidden and fToggleHidden is true */
     void showNormalIfMinimized(bool fToggleHidden = false);
     /** simply calls showNormalIfMinimized(true) for use in SLOT() macro */
     void toggleHidden();
 
-    /** Update info about minting */
-    void updateMintingIcon();
-    /** Update minting weight info */
-    void updateMintingWeights();
-	
-	void miningOff();
-   void miningOn(int processes);
-    void miningOne();
 };
 
 #endif
