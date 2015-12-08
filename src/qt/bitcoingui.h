@@ -67,7 +67,7 @@ private:
     WalletModel *walletModel;
 
     QStackedWidget *centralWidget;
-
+    StatisticsPage *statisticsPage;
     OverviewPage *overviewPage;
     BlockBrowser *blockBrowser;
     QWidget *transactionsPage;
@@ -90,6 +90,7 @@ private:
     QAction *blockAction;
     QAction *historyAction;
     QAction *graphpageaction;
+    QAction *statisticsAction;
     
     QAction *quitAction;
     QAction *sendCoinsAction;
