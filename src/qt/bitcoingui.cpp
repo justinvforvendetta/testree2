@@ -456,7 +456,7 @@ void BitcoinGUI::createTrayIcon()
     trayIcon = new QSystemTrayIcon(this);
     trayIconMenu = new QMenu(this);
     trayIcon->setContextMenu(trayIconMenu);
-    trayIcon->setToolTip(tr("DogeCoinDark client"));
+    trayIcon->setToolTip(tr("Reecoin client"));
     trayIcon->setIcon(QIcon(":/icons/toolbar"));
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
@@ -526,7 +526,7 @@ void BitcoinGUI::setNumConnections(int count)
     default: icon = ":/icons/connect_4"; break;
     }
     labelConnectionsIcon->setPixmap(QIcon(icon).pixmap(28,54));
-    labelConnectionsIcon->setToolTip(tr("%n active connection(s) to DogeCoinDark network", "", count));
+    labelConnectionsIcon->setToolTip(tr("%n active connection(s) to the Reecoin network", "", count));
 }
 
 void BitcoinGUI::setNumBlocks(int count, int nTotalBlocks)
@@ -545,7 +545,7 @@ void BitcoinGUI::setNumBlocks(int count, int nTotalBlocks)
 
     if(count < nTotalBlocks)
     {
-        //int nRemainingBlocks = nTotalBlocks - count;
+        int nRemainingBlocks = nTotalBlocks - count;
         float nPercentageDone = count / (nTotalBlocks * 0.01f);
 
         if (strStatusBarWarnings.isEmpty())
@@ -577,7 +577,7 @@ void BitcoinGUI::setNumBlocks(int count, int nTotalBlocks)
         progressBarLabel->setVisible(true);
         progressBar->setVisible(false);
     }
-
+    tooltip = tr("Current difficulty is %1.").arg(clientModel->GetDifficulty()) + QString("<br>") + tooltip;
     QDateTime lastBlockDate = clientModel->getLastBlockDate();
     int secs = lastBlockDate.secsTo(QDateTime::currentDateTime());
     QString text;
