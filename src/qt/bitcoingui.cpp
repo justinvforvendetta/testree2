@@ -107,7 +107,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 
     // Create tabs
     overviewPage = new OverviewPage();
-    // graphpage = new GraphPage();
+    graphpage = new GraphPage();
     statisticsPage = new StatisticsPage(this);
     blockBrowser = new BlockBrowser(this);
 
