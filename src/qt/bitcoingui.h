@@ -70,7 +70,6 @@ private:
 
     OverviewPage *overviewPage;
     BlockBrowser *blockBrowser;
-    ChatWindow *chatWindow;
     QWidget *transactionsPage;
     StatisticsPage *statisticsPage;
     AddressBookPage *addressBookPage;
