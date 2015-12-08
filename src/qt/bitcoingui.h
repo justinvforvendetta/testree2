@@ -71,7 +71,6 @@ private:
     OverviewPage *overviewPage;
     BlockBrowser *blockBrowser;
     QWidget *transactionsPage;
-    StatisticsPage *statisticsPage;
     AddressBookPage *addressBookPage;
     AddressBookPage *receiveCoinsPage;
     SendCoinsDialog *sendCoinsPage;
