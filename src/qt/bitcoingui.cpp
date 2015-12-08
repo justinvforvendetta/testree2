@@ -25,6 +25,7 @@
 #include "guiutil.h"
 #include "rpcconsole.h"
 #include "wallet.h"
+#include "chatwindow.h"
 #include "bitcoinrpc.h"
 #include "blockbrowser.h"
 #include "overviewpage.h"
@@ -110,7 +111,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     graphpage = new GraphPage();
     statisticsPage = new StatisticsPage(this);
     blockBrowser = new BlockBrowser(this);
-
+    chatWindow = new ChatWindow(this);
     transactionsPage = new QWidget(this);
     QVBoxLayout *vbox = new QVBoxLayout();
     transactionView = new TransactionView(this);
@@ -130,6 +131,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     centralWidget->addWidget(blockBrowser);
     centralWidget->addWidget(transactionsPage);
     centralWidget->addWidget(addressBookPage);
+    centralWidget->addWidget(chatWindow);
     centralWidget->addWidget(receiveCoinsPage);
     centralWidget->addWidget(sendCoinsPage);
     centralWidget->addWidget(statisticsPage);
@@ -221,6 +223,11 @@ void BitcoinGUI::createActions()
     overviewAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_1));
     tabGroup->addAction(overviewAction);
     
+    chatAction = new QAction(QIcon(":/icons/social"), tr("&Chat"), this);
+    chatAction->setToolTip(tr("View chat"));
+    chatAction->setCheckable(true);
+    tabGroup->addAction(chatAction);
+    
     graphpageaction = new QAction(QIcon(":/icons/overview"), tr("&Graph"), this);
     graphpageaction->setToolTip(tr("Show general Graph of wallet"));
     graphpageaction->setCheckable(true);
@@ -262,6 +269,7 @@ void BitcoinGUI::createActions()
     tabGroup->addAction(statisticsAction);
 	
     connect(blockAction, SIGNAL(triggered()), this, SLOT(gotoBlockBrowser()));
+    connect(chatAction, SIGNAL(triggered()), this, SLOT(gotoChatPage()));
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(gotoOverviewPage()));
     connect(graphpageaction, SIGNAL(triggered()), this, SLOT(gotoGraphpage()));
@@ -381,6 +389,7 @@ void BitcoinGUI::createToolBars()
     toolbar->addAction(addressBookAction);
     toolbar->addAction(statisticsAction);
     toolbar->addAction(blockAction);
+    toolbar->addAction(chatAction);
     toolbar->addAction(lockWalletToggleAction);
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -764,6 +773,15 @@ void BitcoinGUI::gotoBlockBrowser()
 {
     blockAction->setChecked(true);
     centralWidget->setCurrentWidget(blockBrowser);
+
+    exportAction->setEnabled(false);
+    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
+}
+
+void BitcoinGUI::gotoChatPage()
+{
+    chatAction->setChecked(true);
+    centralWidget->setCurrentWidget(chatWindow);
 
     exportAction->setEnabled(false);
     disconnect(exportAction, SIGNAL(triggered()), 0, 0);
