@@ -107,7 +107,6 @@ private:
     QAction *lockWalletToggleAction;
     QAction *aboutQtAction;
     QAction *openRPCConsoleAction;
-    QAction *blockAction;
     QAction *miningOffAction;
     QAction *miningOneAction;
     QSystemTrayIcon *trayIcon;
