@@ -184,6 +184,9 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     // Clicking on a transaction on the overview page simply sends you to transaction history page
     connect(overviewPage, SIGNAL(transactionClicked(QModelIndex)), this, SLOT(gotoHistoryPage()));
     connect(overviewPage, SIGNAL(transactionClicked(QModelIndex)), transactionView, SLOT(focusTransaction(QModelIndex)));
+    
+    connect(graphpage, SIGNAL(transactionClicked(QModelIndex)), this, SLOT(gotoGraphpage()));
+    connect(graphpage, SIGNAL(transactionClicked(QModelIndex)), transactionView, SLOT(focusTransaction(QModelIndex)));
 
     // Double-clicking on a transaction on the transaction history page shows details
     connect(transactionView, SIGNAL(doubleClicked(QModelIndex)), transactionView, SLOT(showDetails()));
@@ -217,6 +220,11 @@ void BitcoinGUI::createActions()
     overviewAction->setCheckable(true);
     overviewAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_1));
     tabGroup->addAction(overviewAction);
+    
+    graphpageaction = new QAction(QIcon(":/icons/overview"), tr("&Graph"), this);
+    graphpageaction->setToolTip(tr("Show general Graph of wallet"));
+    graphpageaction->setCheckable(true);
+    graphpageaction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_1));
 
     sendCoinsAction = new QAction(QIcon(":/icons/send"), tr("&Send coins"), this);
     sendCoinsAction->setToolTip(tr("Send coins to a DogeCoinDark address"));
@@ -256,6 +264,7 @@ void BitcoinGUI::createActions()
     connect(blockAction, SIGNAL(triggered()), this, SLOT(gotoBlockBrowser()));
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(gotoOverviewPage()));
+    connect(graphpageaction, SIGNAL(triggered()), this, SLOT(gotoGraphpage()));
     connect(sendCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(sendCoinsAction, SIGNAL(triggered()), this, SLOT(gotoSendCoinsPage()));
     connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
@@ -742,6 +751,14 @@ void BitcoinGUI::gotoOverviewPage()
     disconnect(exportAction, SIGNAL(triggered()), 0, 0);
 }
 
+void BitcoinGUI::gotoGraphpage()
+{
+    graphpageaction->setChecked(true);
+    centralWidget->setCurrentWidget(graphpage);
+
+    exportAction->setEnabled(false);
+    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
+}
 
 void BitcoinGUI::gotoBlockBrowser()
 {
