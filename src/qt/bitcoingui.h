@@ -105,8 +105,7 @@ private:
     QAction *encryptWalletAction;
     QAction *backupWalletAction;
     QAction *changePassphraseAction;
-    QAction *unlockWalletAction;
-    QAction *lockWalletAction;
+    QAction *lockWalletToggleAction;
     QAction *aboutQtAction;
     QAction *openRPCConsoleAction;
     QAction *miningOffAction;
