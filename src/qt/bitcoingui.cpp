@@ -749,7 +749,6 @@ void BitcoinGUI::gotoBlockBrowser()
     disconnect(exportAction, SIGNAL(triggered()), 0, 0);
 }
 
-void BitcoinGUI::gotoChatPage()
 {
     chatAction->setChecked(true);
     centralWidget->setCurrentWidget(chatWindow);
