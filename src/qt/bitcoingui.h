@@ -104,7 +104,6 @@ private:
     QAction *optionsAction;
     QAction *toggleHideAction;
     QAction *exportAction;
-    QAction *blockAction;
     QAction *chatAction;
     QAction *encryptWalletAction;
     QAction *backupWalletAction;
