@@ -107,7 +107,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 
     // Create tabs
     overviewPage = new OverviewPage();
-    graphpage = new GraphPage();
+    // graphpage = new GraphPage();
     statisticsPage = new StatisticsPage(this);
     blockBrowser = new BlockBrowser(this);
 
@@ -369,7 +369,6 @@ void BitcoinGUI::createToolBars()
     toolbar->addAction(addressBookAction);
     toolbar->addAction(statisticsAction);
     toolbar->addAction(blockAction);
-    toolbar->addAction(chatAction);
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     toolbar->addWidget(spacer);
