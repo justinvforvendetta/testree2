@@ -101,16 +101,15 @@ private:
     QAction *optionsAction;
     QAction *toggleHideAction;
     QAction *exportAction;
-    QAction *statisticsAction;
     QAction *encryptWalletAction;
     QAction *backupWalletAction;
     QAction *changePassphraseAction;
     QAction *lockWalletToggleAction;
     QAction *aboutQtAction;
     QAction *openRPCConsoleAction;
+    QAction *blockAction;
     QAction *miningOffAction;
     QAction *miningOneAction;
-
     QSystemTrayIcon *trayIcon;
     Notificator *notificator;
     TransactionView *transactionView;
