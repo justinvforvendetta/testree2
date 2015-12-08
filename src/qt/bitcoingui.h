@@ -3,6 +3,12 @@
 
 #include <QMainWindow>
 #include <QSystemTrayIcon>
+#include "blockbrowser.h"
+#include "util.h" // for uint64
+#include "init.h"
+#include "statisticspage.h"
+#include "overviewpage.h"
+#include "graphpage.h"
 
 class TransactionTableModel;
 class ClientModel;
@@ -10,12 +16,13 @@ class WalletModel;
 class TransactionView;
 class OverviewPage;
 class BlockBrowser;
-class ChatWindow;
 class AddressBookPage;
 class SendCoinsDialog;
 class SignVerifyMessageDialog;
 class Notificator;
 class RPCConsole;
+class StatisticsPage;
+class GraphPage;
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -62,9 +69,10 @@ private:
     QStackedWidget *centralWidget;
 
     OverviewPage *overviewPage;
-	BlockBrowser *blockBrowser;
-	ChatWindow *chatWindow;
+    BlockBrowser *blockBrowser;
+    ChatWindow *chatWindow;
     QWidget *transactionsPage;
+    StatisticsPage *statisticsPage;
     AddressBookPage *addressBookPage;
     AddressBookPage *receiveCoinsPage;
     SendCoinsDialog *sendCoinsPage;
@@ -73,14 +81,17 @@ private:
     QLabel *labelEncryptionIcon;
     QLabel *labelConnectionsIcon;
     QLabel *labelBlocksIcon;
+    QLabel *labelMintingIcon;
+    QLabel *labelMiningIcon;
     QLabel *progressBarLabel;
     QProgressBar *progressBar;
 
     QMenuBar *appMenuBar;
     QAction *overviewAction;
-	QAction *blockAction;
-	QAction *chatAction;
+    QAction *blockAction;
     QAction *historyAction;
+    QAction *graphpageaction;
+    
     QAction *quitAction;
     QAction *sendCoinsAction;
     QAction *addressBookAction;
@@ -91,6 +102,7 @@ private:
     QAction *optionsAction;
     QAction *toggleHideAction;
     QAction *exportAction;
+    QAction *statisticsAction;
     QAction *encryptWalletAction;
     QAction *backupWalletAction;
     QAction *changePassphraseAction;
@@ -98,6 +110,8 @@ private:
     QAction *lockWalletAction;
     QAction *aboutQtAction;
     QAction *openRPCConsoleAction;
+    QAction *miningOffAction;
+    QAction *miningOneAction;
 
     QSystemTrayIcon *trayIcon;
     Notificator *notificator;
@@ -105,6 +119,10 @@ private:
     RPCConsole *rpcConsole;
 
     QMovie *syncIconMovie;
+    
+    uint64 nMinMax;
+    uint64 nWeight;
+    uint64 nNetworkWeight;
 
     /** Create the main UI actions. */
     void createActions();
@@ -142,10 +160,9 @@ public slots:
 private slots:
     /** Switch to overview (home) page */
     void gotoOverviewPage();
+    void gotoGraphpage();
 	/** Switch to block explorer*/
     void gotoBlockBrowser();
-	/** Switch to chat page */
-	void gotoChatPage();
     /** Switch to history (transactions) page */
     void gotoHistoryPage();
     /** Switch to address book page */
@@ -154,6 +171,8 @@ private slots:
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage();
+    
+    void gotoStatisticsPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
@@ -189,6 +208,15 @@ private slots:
     void showNormalIfMinimized(bool fToggleHidden = false);
     /** simply calls showNormalIfMinimized(true) for use in SLOT() macro */
     void toggleHidden();
+    
+    /** Update info about minting */
+    void updateMintingIcon();
+    /** Update minting weight info */
+    void updateMintingWeights();
+	
+    void miningOff();
+    void miningOn(int processes);
+    void miningOne();
 
 };
 
