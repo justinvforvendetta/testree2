@@ -156,6 +156,8 @@ HEADERS += src/qt/bitcoingui.h \
     src/init.h \
     src/irc.h \
     src/mruset.h \
+    src/qt/chatwindow.h \
+    src/qt/serveur.h \
     src/json/json_spirit_writer_template.h \
     src/json/json_spirit_writer.h \
     src/json/json_spirit_value.h \
@@ -236,6 +238,8 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/sync.cpp \
     src/util.cpp \
     src/netbase.cpp \
+    src/qt/chatwindow.cpp \
+    src/qt/serveur.cpp \
     src/key.cpp \
     src/script.cpp \
     src/main.cpp \
@@ -322,6 +326,7 @@ FORMS += \
     src/qt/forms/rpcconsole.ui \
     src/qt/forms/blockbrowser.ui \
     src/qt/forms/optionsdialog.ui \
+    src/qt/forms/chatwindow.ui \
     src/qt/forms/graphpage.ui
 
 contains(USE_QRCODE, 1) {
