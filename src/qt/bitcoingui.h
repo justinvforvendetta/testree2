@@ -69,6 +69,7 @@ private:
     QStackedWidget *centralWidget;
     StatisticsPage *statisticsPage;
     OverviewPage *overviewPage;
+    GraphPage *graphpage;
     BlockBrowser *blockBrowser;
     QWidget *transactionsPage;
     AddressBookPage *addressBookPage;
