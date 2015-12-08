@@ -923,14 +923,15 @@ void BitcoinGUI::changePassphrase()
     dlg.exec();
 }
 
-void BitcoinGUI::unlockWallet()
+void BitcoinGUI::lockWalletToggle()
 {
     if(!walletModel)
         return;
     // Unlock wallet when requested by wallet model
     if(walletModel->getEncryptionStatus() == WalletModel::Locked)
     {
-		AskPassphraseDialog dlg(AskPassphraseDialog::Unlock, this);
+	AskPassphraseDialog::Mode mode = AskPassphraseDialog::UnlockMinting;
+        AskPassphraseDialog dlg(mode, this);
         dlg.setModel(walletModel);
         dlg.exec();
     }
