@@ -18,8 +18,6 @@
 #include "transactiondescdialog.h"
 #include "addresstablemodel.h"
 #include "transactionview.h"
-#include "overviewpage.h"
-#include "blockbrowser.h"
 #include "bitcoinunits.h"
 #include "guiconstants.h"
 #include "askpassphrasedialog.h"
@@ -27,7 +25,10 @@
 #include "guiutil.h"
 #include "rpcconsole.h"
 #include "wallet.h"
-#include "chatwindow.h"
+#include "bitcoinrpc.h"
+#include "blockbrowser.h"
+#include "overviewpage.h"
+#include "graphpage.h"
 
 #ifdef Q_OS_MAC
 #include "macdockiconhandler.h"
@@ -58,10 +59,12 @@
 #include <QDragEnterEvent>
 #include <QUrl>
 #include <QStyle>
-
+#include "statisticspage.h"
 #include <iostream>
 
-extern CWallet* pwalletMain;
+extern CWallet *pwalletMain;
+extern int64 nLastCoinStakeSearchInterval;
+extern unsigned int nStakeTargetSpacing;
 
 BitcoinGUI::BitcoinGUI(QWidget *parent):
     QMainWindow(parent),
@@ -69,15 +72,16 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     walletModel(0),
     encryptWalletAction(0),
     changePassphraseAction(0),
-    unlockWalletAction(0),
-    lockWalletAction(0),
+    lockWalletToggleAction(0),
     aboutQtAction(0),
     trayIcon(0),
+    miningOffAction(0),
+    miningOneAction(0),
     notificator(0),
     rpcConsole(0)
 {
-    setFixedSize(970, 550);
-    setWindowTitle(tr("DogeCoinDark") + " " + tr("Wallet"));
+    setFixedSize(950, 550);
+    setWindowTitle(tr("Reecoin") + " " + tr("Wallet"));
     qApp->setStyleSheet("QMainWindow { background-image:url(:images/bkg);border:none;font-family:'Open Sans,sans-serif'; } #frame { } QToolBar QLabel { padding-top:15px;padding-bottom:10px;margin:0px; } #spacer { background:rgb(12,12,12);border:none; } #toolbar3 { border:none;width:1px; background-color: rgb(249,221,131); } #toolbar2 { border:none;width:28px; background-color:rgb(249,221,131); } #toolbar { border:none;height:100%;padding-top:20px; background: rgb(12,12,12); text-align: left; color: white;min-width:150px;max-width:150px;} QToolBar QToolButton:hover {background-color:qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,stop: 0 rgb(12,12,12), stop: 1 rgb(216,252,251),stop: 2 rgb(59,62,65));} QToolBar QToolButton { font-family:Century Gothic;padding-left:20px;padding-right:150px;padding-top:10px;padding-bottom:10px; width:100%; color: white; text-align: left; background-color: rgb(12,12,12) } #labelMiningIcon { padding-left:5px;font-family:Century Gothic;width:100%;font-size:10px;text-align:center;color:white; } QMenu { background: rgb(12,12,12); color:white; padding-bottom:10px; } QMenu::item { color:white; background-color: transparent; } QMenu::item:selected { background-color:qlineargradient(x1: 0, y1: 0, x2: 0.5, y2: 0.5,stop: 0 rgb(12,12,12), stop: 1 rgb(149,204,244)); } QMenuBar { background: rgb(12,12,12); color:white; } QMenuBar::item { font-size:12px;padding-bottom:8px;padding-top:8px;padding-left:15px;padding-right:15px;color:white; background-color: transparent; } QMenuBar::item:selected { background-color:qlineargradient(x1: 0, y1: 0, x2: 0.5, y2: 0.5,stop: 0 rgb(12,12,12), stop: 1 rgb(149,204,244)); }");
 #ifndef Q_OS_MAC
     qApp->setWindowIcon(QIcon(":icons/bitcoin"));
@@ -103,8 +107,9 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 
     // Create tabs
     overviewPage = new OverviewPage();
-	chatWindow = new ChatWindow(this);
-	blockBrowser = new BlockBrowser(this);
+    graphpage = new GraphPage();
+    statisticsPage = new StatisticsPage(this);
+    blockBrowser = new BlockBrowser(this);
 
     transactionsPage = new QWidget(this);
     QVBoxLayout *vbox = new QVBoxLayout();
@@ -122,9 +127,8 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 
     centralWidget = new QStackedWidget(this);
     centralWidget->addWidget(overviewPage);
-	centralWidget->addWidget(chatWindow);
-	centralWidget->addWidget(blockBrowser);
-	centralWidget->addWidget(transactionsPage);
+    centralWidget->addWidget(blockBrowser);
+    centralWidget->addWidget(transactionsPage);
     centralWidget->addWidget(addressBookPage);
     centralWidget->addWidget(receiveCoinsPage);
     centralWidget->addWidget(sendCoinsPage);
@@ -210,11 +214,6 @@ void BitcoinGUI::createActions()
     overviewAction->setCheckable(true);
     overviewAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_1));
     tabGroup->addAction(overviewAction);
-	
-	chatAction = new QAction(QIcon(":/icons/social"), tr("&Chat"), this);
-	chatAction->setToolTip(tr("View chat"));
-    chatAction->setCheckable(true);
-    tabGroup->addAction(chatAction);
 
     sendCoinsAction = new QAction(QIcon(":/icons/send"), tr("&Send coins"), this);
     sendCoinsAction->setToolTip(tr("Send coins to a DogeCoinDark address"));
@@ -240,14 +239,18 @@ void BitcoinGUI::createActions()
     addressBookAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
     tabGroup->addAction(addressBookAction);
 	
-	blockAction = new QAction(QIcon(":/icons/block"), tr("&Block Explorer"), this);
+    blockAction = new QAction(QIcon(":/icons/block"), tr("&Block Explorer"), this);
     blockAction->setToolTip(tr("Explore the BlockChain"));
     blockAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_6));
     blockAction->setCheckable(true);
     tabGroup->addAction(blockAction);
+    
+    statisticsAction = new QAction(QIcon(":/icons/node"), tr("&Nodes Control"), this);
+    statisticsAction->setToolTip(tr("View statistics"));
+    statisticsAction->setCheckable(true);
+    tabGroup->addAction(statisticsAction);
 	
-	connect(blockAction, SIGNAL(triggered()), this, SLOT(gotoBlockBrowser()));
-	connect(chatAction, SIGNAL(triggered()), this, SLOT(gotoChatPage()));
+    connect(blockAction, SIGNAL(triggered()), this, SLOT(gotoBlockBrowser()));
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(gotoOverviewPage()));
     connect(sendCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
@@ -258,19 +261,20 @@ void BitcoinGUI::createActions()
     connect(historyAction, SIGNAL(triggered()), this, SLOT(gotoHistoryPage()));
     connect(addressBookAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(addressBookAction, SIGNAL(triggered()), this, SLOT(gotoAddressBookPage()));
+    connect(statisticsAction, SIGNAL(triggered()), this, SLOT(gotoStatisticsPage()));
 
     quitAction = new QAction(QIcon(":/icons/quit"), tr("E&xit"), this);
     quitAction->setToolTip(tr("Quit application"));
     quitAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
     quitAction->setMenuRole(QAction::QuitRole);
-    aboutAction = new QAction(QIcon(":/icons/bitcoin"), tr("&About DogeCoinDark"), this);
-    aboutAction->setToolTip(tr("Show information about DogeCoinDark"));
+    aboutAction = new QAction(QIcon(":/icons/bitcoin"), tr("&About Reecoin"), this);
+    aboutAction->setToolTip(tr("Show information about Reecoin"));
     aboutAction->setMenuRole(QAction::AboutRole);
-    aboutQtAction = new QAction(QIcon(":/icons/qtlogo"), tr("About &Qt"), this);
+    aboutQtAction = new QAction(QIcon(":/trolltech/qmessagebox/images/qtlogo-64.png"), tr("About &Qt"), this);
     aboutQtAction->setToolTip(tr("Show information about Qt"));
     aboutQtAction->setMenuRole(QAction::AboutQtRole);
     optionsAction = new QAction(QIcon(":/icons/options"), tr("&Options..."), this);
-    optionsAction->setToolTip(tr("Modify configuration options for DogeCoinDark"));
+    optionsAction->setToolTip(tr("Modify configuration options for Reecoin"));
     optionsAction->setMenuRole(QAction::PreferencesRole);
     toggleHideAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Show / Hide"), this);
     encryptWalletAction = new QAction(QIcon(":/icons/lock_closed"), tr("&Encrypt Wallet..."), this);
@@ -280,12 +284,13 @@ void BitcoinGUI::createActions()
     backupWalletAction->setToolTip(tr("Backup wallet to another location"));
     changePassphraseAction = new QAction(QIcon(":/icons/key"), tr("&Change Passphrase..."), this);
     changePassphraseAction->setToolTip(tr("Change the passphrase used for wallet encryption"));
-    unlockWalletAction = new QAction(QIcon(":/icons/mint_open"), tr("&Unlock"), this);
-    unlockWalletAction->setToolTip(tr("Unlock Mining"));
-    lockWalletAction = new QAction(QIcon(":/icons/mint_closed"), tr("&Lock"), this);
-    lockWalletAction->setToolTip(tr("Lock Mining"));
+    lockWalletToggleAction = new QAction(this);
     signMessageAction = new QAction(QIcon(":/icons/edit"), tr("Sign &message..."), this);
     verifyMessageAction = new QAction(QIcon(":/icons/transaction_0"), tr("&Verify message..."), this);
+    miningOffAction = new QAction(QIcon(":/icons/mining_inactive"), tr("Mining Off"), this);
+    miningOffAction->setStatusTip(tr("Stop Mining. May take some time to wind down."));
+    miningOneAction = new QAction(QIcon(":/icons/mining_active"), tr("Start Mining"), this);
+    miningOneAction->setStatusTip(tr("Mine Reecoin solo."));
 
     exportAction = new QAction(QIcon(":/icons/export"), tr("&Export..."), this);
     exportAction->setToolTip(tr("Export the data in the current tab to a file"));
@@ -300,10 +305,14 @@ void BitcoinGUI::createActions()
     connect(encryptWalletAction, SIGNAL(triggered(bool)), this, SLOT(encryptWallet(bool)));
     connect(backupWalletAction, SIGNAL(triggered()), this, SLOT(backupWallet()));
     connect(changePassphraseAction, SIGNAL(triggered()), this, SLOT(changePassphrase()));
-    connect(unlockWalletAction, SIGNAL(triggered()), this, SLOT(unlockWallet()));
-    connect(lockWalletAction, SIGNAL(triggered()), this, SLOT(lockWallet()));
+    connect(lockWalletToggleAction, SIGNAL(triggered()), this, SLOT(lockWalletToggle()));
     connect(signMessageAction, SIGNAL(triggered()), this, SLOT(gotoSignMessageTab()));
     connect(verifyMessageAction, SIGNAL(triggered()), this, SLOT(gotoVerifyMessageTab()));
+    connect(miningOffAction, SIGNAL(triggered()), this, SLOT(miningOff()));
+
+    connect(miningOneAction, SIGNAL(triggered()), this, SLOT(miningOne()));
+	
+    connect(statisticsAction, SIGNAL(triggered()), this, SLOT(gotoStatisticsPage()));
 }
 
 void BitcoinGUI::createMenuBar()
@@ -328,10 +337,14 @@ void BitcoinGUI::createMenuBar()
     QMenu *settings = appMenuBar->addMenu(tr("&Settings"));
     settings->addAction(encryptWalletAction);
     settings->addAction(changePassphraseAction);
-    settings->addAction(unlockWalletAction);
-    settings->addAction(lockWalletAction);
+    settings->addAction(lockWalletToggleAction);
     settings->addSeparator();
     settings->addAction(optionsAction);
+    
+    QMenu *mining = appMenuBar->addMenu(tr("&Mining"));
+    mining->addSeparator();
+    mining->addAction(miningOneAction);
+    mining->addAction(miningOffAction);
 
     QMenu *help = appMenuBar->addMenu(tr("&Help"));
     help->addAction(openRPCConsoleAction);
@@ -354,8 +367,9 @@ void BitcoinGUI::createToolBars()
     toolbar->addAction(receiveCoinsAction);
     toolbar->addAction(historyAction);
     toolbar->addAction(addressBookAction);
-	toolbar->addAction(blockAction);
-	toolbar->addAction(chatAction);
+    toolbar->addAction(statisticsAction);
+    toolbar->addAction(blockAction);
+    toolbar->addAction(chatAction);
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     toolbar->addWidget(spacer);
@@ -383,7 +397,7 @@ void BitcoinGUI::setClientModel(ClientModel *clientModel)
 #endif
             if(trayIcon)
             {
-                trayIcon->setToolTip(tr("DogeCoinDark client") + QString(" ") + tr("[testnet]"));
+                trayIcon->setToolTip(tr("Reecoin client") + QString(" ") + tr("[testnet]"));
                 trayIcon->setIcon(QIcon(":/icons/toolbar_testnet"));
                 toggleHideAction->setIcon(QIcon(":/icons/toolbar_testnet"));
             }
@@ -417,14 +431,13 @@ void BitcoinGUI::setWalletModel(WalletModel *walletModel)
 
         // Put transaction list in tabs
         transactionView->setModel(walletModel);
-		chatWindow->setModel(clientModel);
         overviewPage->setModel(walletModel);
         addressBookPage->setModel(walletModel->getAddressTableModel());
         receiveCoinsPage->setModel(walletModel->getAddressTableModel());
         sendCoinsPage->setModel(walletModel);
         signVerifyMessageDialog->setModel(walletModel);
 
-		blockBrowser->setModel(clientModel);
+	blockBrowser->setModel(clientModel);
         setEncryptionStatus(walletModel->getEncryptionStatus());
         connect(walletModel, SIGNAL(encryptionStatusChanged(int)), this, SLOT(setEncryptionStatus(int)));
 
