@@ -59,8 +59,8 @@
 #include <QDragEnterEvent>
 #include <QUrl>
 #include <QStyle>
-#include "statisticspage.h"
 #include <iostream>
+#include "statisticspage.h"
 
 extern CWallet *pwalletMain;
 extern int64 nLastCoinStakeSearchInterval;
