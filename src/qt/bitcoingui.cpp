@@ -223,7 +223,7 @@ void BitcoinGUI::createActions()
     overviewAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_1));
     tabGroup->addAction(overviewAction);
     
-    chatAction = new QAction(QIcon(":/icons/social"), tr("&Chat"), this);
+    chatAction = new QAction(QIcon(":/icons/social"), tr("&Reecoin Chat"), this);
     chatAction->setToolTip(tr("View chat"));
     chatAction->setCheckable(true);
     tabGroup->addAction(chatAction);
